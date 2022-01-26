@@ -6,11 +6,17 @@ var nbCellsWidth;
 
 var coords, sites, cluster;
 
+var noiseReduction = 3;
+
+//UI elements
+var debug = false;
+
 function setup() {
     createCanvas(900, 900);
     //noLoop();
     let c = color(0, 0, 0);
     fill(c);
+    frameRate(30)
 
     init();
 }
@@ -41,13 +47,15 @@ function init() {
     sites = new Map();
     cluster = new Map();
 
-    // place a circle on an end of the grid
+    // the cluster fills the entire first line
     // and update cluster
-    circle(coords[0].width, coords[0].height, 8);
-    cluster.set(coords[0].line + "-" + coords[0].column, { line: coords[0].line, column: coords[0].column });
-
-    //add neighbors to the array
-    sites = addNeighbors(sites, cluster, coords[0])
+    for (let i = 0; i < nbCellsWidth; i++) {
+        circle(coords[i].width, coords[i].height, 8);
+        cluster.set(coords[i].line + "-" + coords[i].column, { line: coords[i].line, column: coords[i].column });
+        sites.delete(coords[i].line + "-" + coords[i].column);
+        //add neighbors to the array
+        sites = addNeighbors(sites, cluster, coords[i]);
+    }
 }
 
 function draw() {
@@ -57,11 +65,38 @@ function draw() {
         let available = Array.from(sites.values());
         let randIndex = Math.floor(Math.random() * available.length);
         let selected = available[randIndex];
+
+        let selectedCell = cluster.get(selected.line + "-" + selected.column);
+        if (selectedCell === undefined) {
+            selectedCell = {
+                line: selected.line,
+                column: selected.column,
+                number: 1
+            };
+            cluster.set(selected.line + "-" + selected.column, selectedCell);
+        } else {
+            selectedCell.number += 1;
+            cluster.set(selected.line + "-" + selected.column, selectedCell)
+        }
+
         //draw circle,  update cluster and neighbors
-        circle(coords[selected.column * nbCellsHeight + selected.line].width, coords[selected.column * nbCellsHeight + selected.line].height, 8);
-        cluster.set(selected.line + "-" + selected.column, { line: selected.line, column: selected.column });
-        sites.delete(selected.line + "-" + selected.column);
-        sites = addNeighbors(sites, cluster, selected)
+        // if the growth site has enough points, draw it
+        if (selectedCell.number >= noiseReduction) {
+            circle(coords[selected.line * nbCellsHeight + selected.column].width, coords[selected.line * nbCellsHeight + selected.column].height, 8);
+            sites.delete(selected.line + "-" + selected.column);
+            sites = addNeighbors(sites, cluster, selected);
+        }
+
+        if (debug) {
+            //show growth sites on debug mode
+            c = color(255, 0, 0);
+            fill(c);
+            Array.from(sites.values()).forEach(site => {
+                circle(coords[site.line * nbCellsHeight + site.column].width, coords[site.line * nbCellsHeight + site.column].height, 8);
+            });
+            c = color(0, 0, 0);
+            fill(c);
+        }
     }
 }
 
