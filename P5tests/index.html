@@ -1,10 +1,26 @@
 <html>
-  <head>
-    <script src="node_modules/p5/lib/p5.min.js"></script>
-    <script src="sketch.js"></script>
-  </head>
-  <body>
-    <main>
-    </main>
-  </body>
+
+<head>
+  <script src="node_modules/p5/lib/p5.min.js"></script>
+  <script src="sketch.js"></script>
+</head>
+
+<body>
+  <button onclick="resetDrawing()">reset</button>
+  <div>
+    <input id="noiseReduc" name="noiseReduc" type="range" value="0" min="0" max="5" step="1"
+      oninput="this.nextElementSibling.value = this.value">
+    <output>0</output>
+  </div>
+  <label for="noiseReduc">Noise resuction factor (makes the generation smoother)</label>
+  <div>
+    <input type="checkbox" id="debug" name="debug">
+    <label for="debug">Debug(shows potential growth sites in red)</label>
+  </div>
+  <br />
+  <br />
+  <main>
+  </main>
+</body>
+
 </html>

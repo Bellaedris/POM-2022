@@ -137,3 +137,11 @@ function getNeighbor(x, y) {
     else if (x > nbCellsWidth - 1 || y > nbCellsHeight - 1) return null;
     else return { line: y, column: x };
 }
+
+// UI FUNCTIONS
+function resetDrawing() {
+    noiseReduction = parseInt(document.getElementById("noiseReduc").value);
+    debug = document.getElementById('debug').checked;
+    clear();
+    init();
+}
