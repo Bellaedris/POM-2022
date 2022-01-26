@@ -16,7 +16,7 @@ function setup() {
     //noLoop();
     let c = color(0, 0, 0);
     fill(c);
-    frameRate(30)
+    frameRate(30 * noiseReduction)
 
     init();
 }
