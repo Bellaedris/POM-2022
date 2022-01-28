@@ -8,9 +8,6 @@ var coords, sites, cluster;
 
 var noiseReduction = 3;
 
-//UI elements
-var debug = false;
-
 function setup() {
     createCanvas(900, 900);
     //noLoop();
@@ -138,8 +135,12 @@ function getNeighbor(x, y) {
     else return { line: y, column: x };
 }
 
-// UI FUNCTIONS
+//UI elements
+var debug = false;
+
+// UI functions
 function resetDrawing() {
+    //parses the different gen parameter and generates from scratch again
     noiseReduction = parseInt(document.getElementById("noiseReduc").value);
     debug = document.getElementById('debug').checked;
     clear();
