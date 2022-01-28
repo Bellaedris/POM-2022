@@ -6,6 +6,17 @@
 </head>
 
 <body>
+    <a href="eden.html">Fiddle with the eden model here.</a><br>
+    <input type="number" id="nbwalkers" name="nbwalkers" value="400">
+    <label for="nbwalkers">number of simultaneous walkers</label><br/><br>
+
+    <input type="number" id="iterPerFrame" name="iterPerFrame" value="100">
+    <label for="iterPerFrame">Number of iteration per frame. Can accelerate the process, but your browser may struggle with a high number</label><br><br>
+
+    <input type="number" id="stopthreshold" name="stopthreshold" value="500">
+    <label for="stopthreshold">Will stop the simulation when a number of cells are aggregated.</label><br><br>
+
+    <button onclick="resetDrawing()">apply</button><br><br>
     <main>
     </main>
 </body>
