@@ -114,7 +114,7 @@ class Walker {
 
     checkAggregated(aggregate) {
         for (let i = 0; i < aggregate.length; i++) {
-            if (p5.Vector.dist(this.pos, aggregate[i].pos) <= cellSize) {
+            if (this.sqrDist(aggregate[i]) <= cellSize * cellSize) {
                 if (Math.random() >= (1 - stickyness)) {
                     this.aggregated = true;
                     return true;
@@ -122,6 +122,13 @@ class Walker {
             }
         }
         return false
+    }
+
+    // calculates the distance without the sqrt to accelerate the process
+    sqrDist(b) {
+        let dx = this.pos.x - b.pos.x;
+        let dy = this.pos.y - b.pos.y;
+        return dx * dx + dy * dy;
     }
 
 }
