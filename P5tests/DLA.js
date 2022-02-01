@@ -4,7 +4,7 @@ function setup() {
 
     frameRate(30);
 
-    init()
+    init();
 }
 
 // data structures
@@ -16,14 +16,40 @@ var lastDelta = 0;
 var cellSize = 10;
 var nbWalkers = 400;
 var iterPerFrame = 50;
-var stopThreshold = 300; // stop iterating when n numbers are agregated
+var stopThreshold = 10000; // stop iterating when n numbers are agregated
+var stickyness = 1;
+
+// UI
+var mode = "default"
 
 function init() {
+    switch(mode) {
+        case "default": 
+            initDefault();
+            break;
+        case "line": 
+            initLine();
+            break;
+    }
+}
+
+function initDefault() {
     // place vector at the center of the screen
     let initialCell = new Walker(width / 2, height / 2, true);
     aggregate.push(initialCell);
+    spawnWalkers();
+}
 
-    for (let i = 0; i < nbWalkers; i++) {
+function initLine() {
+    for(let i = 0; i < width / cellSize; i++) {
+        aggregate.push(new Walker(i * cellSize, height, true));
+    }
+    spawnWalkers();
+}
+
+function spawnWalkers() {
+    // re add walkers until there's enough
+    for (let i = walkers.length; i < nbWalkers; i++) {
         walkers.push(new Walker(random(width), random(height)));
     }
 }
@@ -60,10 +86,7 @@ function draw() {
         }
     }
 
-    // re add walkers until there's enough
-    for (let i = walkers.length; i < nbWalkers; i++) {
-        walkers.push(new Walker(random(width), random(height)));
-    }
+    spawnWalkers()
 }
 
 class Walker {
@@ -92,8 +115,10 @@ class Walker {
     checkAggregated(aggregate) {
         for (let i = 0; i < aggregate.length; i++) {
             if (p5.Vector.dist(this.pos, aggregate[i].pos) <= cellSize) {
-                this.aggregated = true;
-                return true;
+                if (Math.random() >= (1 - stickyness)) {
+                    this.aggregated = true;
+                    return true;
+                }
             }
         }
         return false
@@ -105,6 +130,8 @@ function resetDrawing() {
     nbWalkers = parseInt(document.getElementById("nbwalkers").value);
     iterPerFrame = parseInt(document.getElementById("iterPerFrame").value);
     stopThreshold = parseInt(document.getElementById("stopthreshold").value);
+    stickyness = parseFloat(document.getElementById("stickyness").value);
+    mode = document.getElementById("mode").value;
 
     aggregate = []
     walkers = [];
