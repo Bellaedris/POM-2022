@@ -1,5 +1,5 @@
-//TODO spawn particles outsite the bounds (circle? square?) of the cluster
-//TODO delete particles that drift outside the edges
+//TODO perlin map to simulate corals not developing as much at high depth/pressures
+//TODO corals shouldn't develop as much as the depth increases (due to to lack of sunlight). They also require fishes, clean salty water 
 
 function setup() {
     createCanvas(600, 600);
@@ -13,6 +13,7 @@ function setup() {
 // data structures
 var aggregate;
 var walkers = []
+var heightmap; // 
 var lastDelta = 0;
 
 // simulation parameters
@@ -21,12 +22,14 @@ var nbWalkers = 400;
 var iterPerFrame = 50;
 var stopThreshold = 10000; // stop iterating when n numbers are agregated
 var stickyness = 1;
+var noiseScale = 0.1;
 
 // UI
 var mode = "default"
 
 function init() {
     aggregate = new Aggregate();
+    initHeightmap();
     switch(mode) {
         case "default": 
             initDefault();
@@ -61,6 +64,26 @@ function spawnWalkers() {
             walkers.push(new Walker(coord.x, coord.y));
     }
 }
+
+function initHeightmap() {
+    noiseDetail(4, 0.2)
+    heightmap = Array(width * height);
+
+    for(let i = 0; i < width; i++) {
+        for(let j = 0; j < height; j++) {
+            heightmap[j * height + i] = noise(j * noiseScale, i * noiseScale); //simplex.noise2D(j, i);
+        }
+    }
+}
+
+/*function showHeightmap() {
+    for (let i = 0; i < height; i++) {
+        for(let j = 0; j < width; j++) {
+            stroke(heightmap[j * height + i] * 255);
+            point(j * cellSize, i * cellSize);
+        }
+    }
+}*/
 
 function draw() {
     // stop simulation when the aggregate reaches a certain size.

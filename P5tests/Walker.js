@@ -24,7 +24,7 @@ class Walker {
     checkAggregated(aggregate) {
         for (let i = 0; i < aggregate.length(); i++) {
             if (this.sqrDist(aggregate.get(i)) <= cellSize * cellSize) {
-                if (Math.random() >= (1 - stickyness)) {
+                if (Math.random() >= heightmap[Math.round(this.pos.x) * height + Math.round(this.pos.y)]) {
                     this.aggregated = true;
                     return true;
                 }
