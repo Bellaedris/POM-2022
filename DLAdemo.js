@@ -127,3 +127,94 @@ function resetDrawing() {
     walkers = [];
     init();
 }
+
+class Aggregate {
+
+    aggregate = [];
+
+    constructor() {
+        this.boundA = createVector(Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY); //up right corner
+        this.boundB = createVector(Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY); //bottom left corner
+    }
+    
+    addCell(walker) {
+        this.aggregate.push(walker);
+        this.updateBounds(walker);
+    }
+
+    // update the bounding box
+    updateBounds(walker) {
+        if (walker.pos.x + cellSize < this.boundA.x)
+            this.boundA.x = walker.pos.x + cellSize;
+        if (walker.pos.x + cellSize > this.boundB.x)
+            this.boundB.x = walker.pos.x + cellSize;
+        if (walker.pos.y + cellSize > this.boundA.y)
+            this.boundA.y = walker.pos.y + cellSize;
+        if (walker.pos.y + cellSize < this.boundB.y)
+            this.boundB.y = walker.pos.y + cellSize;
+    }
+
+    // return true if a point is inside the aggregate bounding box, false otherwise
+    inside(p) {
+        return (p.x > this.boundA.x) && (p.x < this.boundB.x) && (p.y < this.boundA.y) && (p.y > this.boundB.y);
+    }
+
+    get(i) {
+        return this.aggregate[i];
+    }
+
+    paint() {
+        this.aggregate.forEach(cell => {
+            cell.paint()
+        });
+    }
+
+    length() {
+        return this.aggregate.length;
+    }
+
+}
+
+class Walker {
+    constructor(posX, posY, aggregated) {
+        this.pos = createVector(posX, posY);
+        this.aggregated = aggregated || false;
+    }
+
+    // randomly moves the walker
+    randomWalk() {
+        this.pos.add(p5.Vector.random2D());
+        constrain(this.pos.x, 0, width);
+        constrain(this.pos.y, 0, height);
+    }
+
+    // display the walker
+    paint() {
+        if (this.aggregated) {
+            stroke(255, 0, 0);
+        } else {
+            stroke(255);
+        }
+        point(this.pos);
+    }
+    
+    checkAggregated(aggregate) {
+        for (let i = 0; i < aggregate.length(); i++) {
+            if (this.sqrDist(aggregate.get(i)) <= cellSize * cellSize) {
+                if (Math.random() >= heightmap[Math.round(this.pos.x) * height + Math.round(this.pos.y)]) {
+                    this.aggregated = true;
+                    return true;
+                }
+            }
+        }
+        return false
+    }
+
+    // calculates the distance without the sqrt to accelerate the process
+    sqrDist(b) {
+        let dx = this.pos.x - b.pos.x;
+        let dy = this.pos.y - b.pos.y;
+        return dx * dx + dy * dy;
+    }
+
+}
