@@ -227,6 +227,12 @@ corals_BINARY_DIR:STATIC=/home/bellaedris/Documents/Master/POM/corals
 //Value Computed by CMake
 corals_SOURCE_DIR:STATIC=/home/bellaedris/Documents/Master/POM/corals
 
+//Path to a library.
+libnoise:FILEPATH=libnoise-NOTFOUND
+
+//The directory containing a CMake configuration file for libnoise.
+libnoise_DIR:PATH=libnoise_DIR-NOTFOUND
+
 //The directory containing a CMake configuration file for noise.
 noise_DIR:PATH=noise_DIR-NOTFOUND
 

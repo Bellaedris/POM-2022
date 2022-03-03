@@ -20,4 +20,4 @@ add_executable(${PROJECT_NAME}
 )
 
 find_package(Qt5 COMPONENTS Core Gui REQUIRED)
-target_link_libraries(corals PRIVATE Qt5::Core Qt5::Gui)
+target_link_libraries(corals PRIVATE Qt5::Core Qt5::Gui /lib/libnoise.a)

@@ -5,6 +5,7 @@
 #include "Box2.h"
 #include "Vector2.h"
 #include "Vector3.h"
+#include <libnoise/noise.h>
 
 /*! \class Terrain
 * Representation of a 3 dimensions terrain. It can be constructed from scratch using noise, or using an image. 
