@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 2138677392}
-  m_IndirectSpecularColor: {r: 0.28503847, g: 0.37140927, b: 0.49602145, a: 1}
+  m_IndirectSpecularColor: {r: 0.2850269, g: 0.3713935, b: 0.49601045, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -2551,11 +2551,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   levelOfDetail: 0
-  scale: 1
+  scale: 1.5
   offset: {x: 0, y: 0}
   octaves: 1
-  persistance: 1
-  lacunarity: 1
+  persistance: 0.4
+  lacunarity: 2
   redistribution: 1
   maxHeight: 1
   seed: 1
@@ -2611,6 +2611,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  DLACells: 50
+  cellSize: 1
   colorMap: 0
   generateMesh: 0
   autoUpdate: 0

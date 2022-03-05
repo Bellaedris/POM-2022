@@ -39,6 +39,12 @@ public class MapGenerator : MonoBehaviour
     public bool flattenWaterLevel;
     public AnimationCurve flatWaterlevel;
     [Space(10)]
+    [Header("Corals")]
+    [Tooltip("Number of Cells the DLA should generate")]
+    public int DLACells = 50;
+    [Tooltip("radius of an aggregated cell")]
+    public int cellSize = 1;
+    [Space(10)]
     [Header("Misc")]
     public bool colorMap;
     public bool generateMesh;
@@ -68,13 +74,18 @@ public class MapGenerator : MonoBehaviour
             mesh.sharedMesh = defaultMesh;
         }
 
-        renderObject.sharedMaterial.mainTexture = TextureGenerator.TextureFromColorMap(data.colormap, width, height);
+        if(colorMap) {
+            renderObject.sharedMaterial.mainTexture = TextureGenerator.TextureFromColorMap(data.colormap, width, height);
+        } else {
+            renderObject.sharedMaterial.mainTexture = TextureGenerator.GenerateTexture(data.noisemap, width, height);
+        }
+
     }
 
     private MapData GenerateMap() {
         float[,] noisemap = NoiseGenerator.GenerateNoise(width, height, octaves, persistance, lacunarity, scale, offset, redistribution, seed, 
                                                         islandMode, waterCoefficient);
-
+        noisemap = DLAGenerator.GenerateDLA(noisemap, DLACells, width, height, cellSize);
         Color[] colourmap = new Color[width * height];
             for(int y = 0; y < noisemap.GetLength(0); y++) {
                 for(int x = 0; x < noisemap.GetLength(1); x++) {
