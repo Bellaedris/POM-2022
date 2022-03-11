@@ -12,8 +12,8 @@ public class MapGenerator : MonoBehaviour
 
     #region variables
     [Header("Generator parameters")]
-    public const int width = 500;
-    public const int height = 500;
+    public int width = 500;
+    public int height = 500;
     [Range(0,6)]
     public int levelOfDetail;
     public float scale = 1.0f;

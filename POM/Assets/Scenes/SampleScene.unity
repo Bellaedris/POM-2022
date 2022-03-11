@@ -2611,8 +2611,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  DLACells: 50
-  cellSize: 1
+  DLACells: 10
+  cellSize: 200
   colorMap: 0
   generateMesh: 0
   autoUpdate: 0
