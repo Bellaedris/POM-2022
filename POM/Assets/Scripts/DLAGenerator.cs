@@ -19,20 +19,17 @@ public static class DLAGenerator
 
         while (agg.size() < particles)
         {
-            // displaces all the walkers a set number of times
-            // also removes the walkers that got aggregated
-            for (var i = 0; i < walkers.Count; i++)
-            {
-                walkers[i].RandomWalk(width, height, cellSize);
-                if (walkers[i].timeAlive >= maxAge) {
-                    walkers.RemoveAt(i);
-                    walkers.Add(new Walker(Random.Range(0, width), Random.Range(0, height)));
-                }
-
-                if (walkers[i].CheckAggregated(agg, cellSize, heightmap))
+            Walker walker = new Walker(Random.Range(0, width), Random.Range(0, height)); 
+            while(!walker.aggregated) {
+                if (walker.CheckAggregated(agg, cellSize, heightmap))
                 {
-                    agg.AddCell(walkers[i]);
-                    walkers.RemoveAt(i);
+                    agg.AddCell(walker);
+                    break;
+                }
+                walker.RandomWalk(width, height, cellSize);
+                if (walker.timeAlive >= maxAge) {
+                    walkers.Add(new Walker(Random.Range(0, width), Random.Range(0, height)));
+                    break;
                 }
             }
         }
