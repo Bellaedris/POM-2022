@@ -15,7 +15,6 @@ public class MapGenerator : MonoBehaviour
     public int width = 500;
     public int height = 500;
     [Range(0,6)]
-    public int levelOfDetail;
     public float scale = 1.0f;
     public Vector2 offset;
     public int octaves = 1;
@@ -53,8 +52,7 @@ public class MapGenerator : MonoBehaviour
     public Renderer renderObject;
     public Mesh defaultMesh;
 
-    private ConcurrentQueue<MapThreadInfo<MapData>> MapDataThreadInfoQueue = new ConcurrentQueue<MapThreadInfo<MapData>>();
-    private ConcurrentQueue<MapThreadInfo<MeshData>> MeshDataThreadInfoQueue = new ConcurrentQueue<MapThreadInfo<MeshData>>();
+    
     #endregion
 
     #region customMethods
@@ -64,10 +62,12 @@ public class MapGenerator : MonoBehaviour
         if (generateMesh) {
             MeshFilter mesh = renderObject.GetComponent<MeshFilter>();
             MeshData meshData;
-            if (flattenWaterLevel)
-                meshData = MeshGenerator.GenerateMesh(data.noisemap, maxHeight, width, height, flatWaterlevel, levelOfDetail);
+            if (flattenWaterLevel) {
+                meshData = MeshGenerator.GenerateMesh(data.noisemap, maxHeight, width, height, flatWaterlevel);
+                mesh.sharedMesh = meshData.CreateMesh();
+            }
             else
-                meshData = MeshGenerator.GenerateMesh(data.noisemap, maxHeight, width, height, AnimationCurve.Linear(0,0,1,1), levelOfDetail);
+                meshData = MeshGenerator.GenerateMesh(data.noisemap, maxHeight, width, height, AnimationCurve.Linear(0,0,1,1));
                 mesh.sharedMesh = meshData.CreateMesh();
         } else {
             MeshFilter mesh = renderObject.GetComponent<MeshFilter>();
@@ -102,55 +102,12 @@ public class MapGenerator : MonoBehaviour
         return new MapData(noisemap, colourmap);
     }
 
-    public void RequestMapData(Action<MapData> callback) {
-        ThreadStart threadStart = delegate {
-            MapDataThread(callback);
-        };
-        new Thread(threadStart).Start();
-    }
-
-    public void MapDataThread(Action<MapData> callback) {
-        MapData data = GenerateMap();
-        lock (MapDataThreadInfoQueue)
-        {
-            MapDataThreadInfoQueue.Enqueue(new MapThreadInfo<MapData>(callback, data));
-        }
-    }
-
-    public void RequestMeshData(Action<MeshData> callback, MapData mapData) {
-        ThreadStart threadStart = delegate {
-            MeshDataThread(callback, mapData);
-        };
-        new Thread(threadStart).Start();
-    }
-
-    public void MeshDataThread(Action<MeshData> callback, MapData mapData) {
-        MeshData data = MeshGenerator.GenerateMesh(mapData.noisemap, maxHeight, width, height, flatWaterlevel, levelOfDetail);
-        lock (MapDataThreadInfoQueue)
-        {
-            MeshDataThreadInfoQueue.Enqueue(new MapThreadInfo<MeshData>(callback, data));
-        }
-    }
-
     #endregion
 
     #region builtins
 
     private void Update() {
-        if (MapDataThreadInfoQueue.Count > 0) {
-            for(int i = 0; i < MapDataThreadInfoQueue.Count; i++) {
-                MapThreadInfo<MapData> threadInfo;
-                MapDataThreadInfoQueue.TryDequeue(out threadInfo);
-                threadInfo.callback(threadInfo.param);
-            }
-        }
-        if (MeshDataThreadInfoQueue.Count > 0) {
-            for(int i = 0; i < MeshDataThreadInfoQueue.Count; i++) {
-                MapThreadInfo<MeshData> threadInfo;
-                MeshDataThreadInfoQueue.TryDequeue(out threadInfo);
-                threadInfo.callback(threadInfo.param);
-            }
-        }
+        
     }
 
     //checks for incorrect inspector values
@@ -180,16 +137,6 @@ public class MapGenerator : MonoBehaviour
         public MapData(float[,] noisemap, Color[] colormap) {
             this.noisemap = noisemap;
             this.colormap = colormap;
-        }
-    }
-
-    public struct MapThreadInfo<T> {
-        public Action<T> callback;
-        public T param;
-
-        public MapThreadInfo(Action<T> callback, T param) {
-            this.callback = callback;
-            this.param = param;
         }
     }
 }
