@@ -29,6 +29,10 @@ public class MapGenerator : MonoBehaviour
     public float waterCoefficient;
     [Tooltip("Generate island-ish shapes")]
     public bool islandMode;
+    [Tooltip("heights will increase by step instead of smoothly")]
+    public bool terraces;
+    [Tooltip("number of terraces steps")]
+    public int terracesSteps = 10;
     [Space(10)]
     [Header("Biomes and colors")]
     public TerrainType[] biomes;
@@ -84,7 +88,7 @@ public class MapGenerator : MonoBehaviour
 
     private MapData GenerateMap() {
         float[,] noisemap = NoiseGenerator.GenerateNoise(width, height, octaves, persistance, lacunarity, scale, offset, redistribution, seed, 
-                                                        islandMode, waterCoefficient);
+                                                        islandMode, waterCoefficient, terraces, terracesSteps);
         noisemap = DLAGenerator.GenerateDLA(noisemap, DLACells, width, height, cellSize);
         Color[] colourmap = new Color[width * height];
             for(int y = 0; y < noisemap.GetLength(0); y++) {
