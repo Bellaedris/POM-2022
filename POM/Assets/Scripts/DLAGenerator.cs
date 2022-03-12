@@ -70,7 +70,7 @@ public static class DLAGenerator
 
 }
 
-
+// a cell able to walk randomly
 public class Walker
 {
     public Vector2 pos;
@@ -84,6 +84,7 @@ public class Walker
         this.timeAlive = 0;
     }
 
+    // apply brownian motion and constrain the movements to our heightmap domain
     public void RandomWalk(int width, int height)
     {
         this.pos.x += Random.value;
@@ -93,10 +94,12 @@ public class Walker
         this.timeAlive += 1;
     }
 
+    // checks if 2 points are close enough to be aggregated
     public bool CheckAggregated(Aggregate agg, int cellSize, float[,] heightmap)
     {
         for (int i = 0; i < agg.aggregate.Count; i++)
         {
+            // uses sqrdist instead of regular dist to avoid sqrt
             if (Utils.sqrDist(this.pos, agg.get(i).pos) <= cellSize * cellSize)
             {
                 if (Random.value <= heightmap[(int)this.pos.x, (int)this.pos.y])
@@ -111,6 +114,7 @@ public class Walker
     }
 }
 
+// an aggregate that contains walkers
 public class Aggregate
 {
     public Vector2 boundsA;
@@ -137,12 +141,14 @@ public class Aggregate
         return aggregate[i];
     }
 
+    // add a cell to the aggregate and immediately updates the bounding box
     public void AddCell(Walker cell)
     {
         aggregate.Add(cell);
         UpdateBounds(cell);
     }
 
+    // update the bounding box of the aggregate with the newly added cell
     public void UpdateBounds(Walker cell)
     {
         if (cell.pos.x + cellSize < this.boundsA.x)
@@ -166,6 +172,7 @@ public class Aggregate
         return new Walker(randCoord.x, randCoord.y);
     }
 
+    // checks if a point is inside the aggregate bounding box
     public bool IsInside(Vector2 p)
     {
         return (p.x > this.boundsA.x) && (p.x < this.boundsB.x) && (p.y < this.boundsA.y) && (p.y > this.boundsB.y);

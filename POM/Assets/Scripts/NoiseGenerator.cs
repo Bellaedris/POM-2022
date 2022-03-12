@@ -34,9 +34,8 @@ public static class NoiseGenerator
                 //create an island shape by lowering noise value the further you are from the middle of the map
                 if (islandMode) 
                     finalValue = finalValue - Vector2.Distance(new Vector2(x, y), new Vector2(width / 2, height / 2)) / (width * waterCoefficient);
-                if (terraces) {
+                if (terraces) 
                     finalValue = Mathf.Round(finalValue * terracesStep) / terracesStep;
-                }
                 results[(int) x, (int) y] = finalValue;
             }
         }
