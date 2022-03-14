@@ -11,16 +11,11 @@ public static class DLAGenerator
     public static float[,] GenerateDLA(float[,] heightmap, int particles, int width, int height, int cellSize)
     {
         Aggregate agg = new Aggregate(width / 2, height / 2, cellSize);
-        List<Walker> walkers = new List<Walker>(particles);
-        for (int i = 1; i < particles; i++)
-        {
-            walkers.Add(agg.SpawnOutsideBoundingBox(width, height));
-        }
 
         //DLA generation, fire an individual particle until the aggregate has the desired number of particles
         while (agg.size() < particles)
         {
-            Walker walker = new Walker(Random.Range(0, width), Random.Range(0, height));
+            Walker walker = agg.SpawnOutsideBoundingBox(width, height);
             // randomly move the walker until he's part of the aggregate
             while (!walker.aggregated)
             {
@@ -33,7 +28,7 @@ public static class DLAGenerator
                 // kill walkers that have been moving for too long and spawn another one outside the bounding box of the aggregate
                 if (walker.timeAlive >= maxAge)
                 {
-                    walkers.Add(agg.SpawnOutsideBoundingBox(width, height));
+                    walker = agg.SpawnOutsideBoundingBox(width, height);
                     break;
                 }
             }
@@ -54,10 +49,11 @@ public static class DLAGenerator
                     {
                         float oldHeight = heightmap[j, i];
                         Vector2 tmp = new Vector2(j, i);
+                        float dist = Vector2.Distance(tmp, w.pos);
                         if (Utils.sqrDist(w.pos, tmp) <= cellSize * cellSize)
                         {
                             // remap height using a 1/x * 1/x + heightIncrease function (should change to a gaussian function at some point)
-                            heightmap[j, i] = Mathf.Lerp(oldHeight, wHeight, ((-(tmp - w.pos).magnitude / cellSize) * ((tmp - w.pos).magnitude / cellSize) + 1));
+                            heightmap[j, i] = Mathf.Lerp(oldHeight, wHeight, ((-dist / cellSize) * (dist / cellSize) + 1));
                         }
                     }
                 }
@@ -87,10 +83,8 @@ public class Walker
     // apply brownian motion and constrain the movements to our heightmap domain
     public void RandomWalk(int width, int height)
     {
-        this.pos.x += Random.value;
-        this.pos.y += Random.value;
-        this.pos.x = Mathf.Clamp(this.pos.x, 0, width - 1);
-        this.pos.y = Mathf.Clamp(this.pos.y, 0, height - 1);
+        this.pos.x = Mathf.Clamp(Random.value, 0, width - 1);
+        this.pos.y = Mathf.Clamp(Random.value, 0, height - 1);
         this.timeAlive += 1;
     }
 
