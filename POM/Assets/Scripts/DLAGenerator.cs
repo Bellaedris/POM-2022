@@ -5,7 +5,7 @@ using UnityEngine;
 public static class DLAGenerator
 {
 
-    public const int maxAge = 100;
+    public const int maxAge = 500;
 
     #region methods
     public static float[,] GenerateDLA(float[,] heightmap, int particles, int width, int height, int cellSize)
@@ -49,16 +49,46 @@ public static class DLAGenerator
                     {
                         float oldHeight = heightmap[j, i];
                         Vector2 tmp = new Vector2(j, i);
-                        float dist = Vector2.Distance(tmp, w.pos);
-                        if (Utils.sqrDist(w.pos, tmp) <= cellSize * cellSize)
-                        {
-                            // remap height using a 1/x * 1/x + heightIncrease function (should change to a gaussian function at some point)
-                            heightmap[j, i] = Mathf.Lerp(oldHeight, wHeight, ((-dist / cellSize) * (dist / cellSize) + 1));
-                        }
+                        float dist = (tmp - w.pos).magnitude;
+                        // remap height using a 1/x * 1/x + heightIncrease function (should change to a gaussian function at some point)
+                        heightmap[j, i] = Mathf.Lerp(oldHeight, wHeight, (Mathf.Exp(-Mathf.Pow(Vector2.Distance(w.pos, tmp) / cellSize, 10f))));
                     }
                 }
             }
         }
+
+        // TESTS OF A CONVOLUTION METHOD
+        // https://easychair.org/publications/preprint_open/qLmc
+        /*foreach (Walker w in agg.aggregate)
+        {
+            for (int i = (int)w.pos.y - cellSize; i < (int)w.pos.y + cellSize; i++)
+            {
+                for (int j = (int)w.pos.x - cellSize; j < (int)w.pos.x + cellSize; j++)
+                {
+                    float oldHeight = heightmap[(int)w.pos.x, (int)w.pos.y];
+                    float conv = 0;
+                    // pour chaque point, itérer sur ses 8 voisins
+                    for (int offsetX = -cellSize; offsetX <= cellSize; offsetX++)
+                    {
+                        for (int offsetY = -cellSize; offsetY <= cellSize; offsetY++)
+                        {
+                            if (offsetX > 0 && offsetY > 0 && offsetX < width && offsetY < height)
+                            {
+                                Vector2 tmp = new Vector2((int)w.pos.x + offsetX, (int)w.pos.y + offsetY);
+                                conv += oldHeight * Mathf.Exp(-Mathf.Pow(Vector2.Distance(tmp, w.pos), 10f));
+                            }
+                        }
+                    }
+                    Debug.Log(conv);
+
+                    if (i > 0 && j > 0 && i < width && j < height)
+                    {
+                        heightmap[j, i] = oldHeight + 0.01f * conv;
+                    }
+                }
+            }
+            // la hauteur du point est heightmap(point) + hauteur voulue * la somme de heightmap(point) * exp(-dist(point, voisin)^k)
+        }*/
 
         return heightmap;
     }
@@ -83,15 +113,15 @@ public class Walker
     // apply brownian motion and constrain the movements to our heightmap domain
     public void RandomWalk(int width, int height)
     {
-        this.pos.x = Mathf.Clamp(Random.value, 0, width - 1);
-        this.pos.y = Mathf.Clamp(Random.value, 0, height - 1);
+        this.pos.x = Mathf.Clamp(this.pos.x + Random.Range(-1f, 1f), 0, width - 1);
+        this.pos.y = Mathf.Clamp(this.pos.y + Random.Range(-1f, 1f), 0, height - 1);
         this.timeAlive += 1;
     }
 
     // checks if 2 points are close enough to be aggregated
     public bool CheckAggregated(Aggregate agg, int cellSize, float[,] heightmap)
     {
-        for (int i = 0; i < agg.aggregate.Count; i++)
+        for (int i = 0; i < agg.size(); i++)
         {
             // uses sqrdist instead of regular dist to avoid sqrt
             if (Utils.sqrDist(this.pos, agg.get(i).pos) <= cellSize * cellSize)
