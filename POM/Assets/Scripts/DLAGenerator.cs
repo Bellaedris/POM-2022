@@ -15,10 +15,13 @@ public static class DLAGenerator
         //DLA generation, fire an individual particle until the aggregate has the desired number of particles
         while (agg.size() < particles)
         {
-            Walker walker = agg.SpawnOutsideBoundingBox(width, height);
-            // randomly move the walker until he's part of the aggregate
+            //TODO fix spawning. Spawning outside of bounding box tends to create long lines
+            // spawning anywhere creates big chunks that do not look natural.
+            //Walker walker = agg.SpawnOutsideBoundingBox(width, height);
+            Walker walker = new Walker(Random.Range(0, width), Random.Range(0, height));
+            // randomly move the walker until he's part of the aggregate 
             while (!walker.aggregated)
-            {
+            { 
                 if (walker.CheckAggregated(agg, cellSize, heightmap))
                 {
                     agg.AddCell(walker);
@@ -28,13 +31,16 @@ public static class DLAGenerator
                 // kill walkers that have been moving for too long and spawn another one outside the bounding box of the aggregate
                 if (walker.timeAlive >= maxAge)
                 {
-                    walker = agg.SpawnOutsideBoundingBox(width, height);
+                    Vector2 randPos = new Vector2(Random.Range(0, width), Random.Range(0, height));
+                    walker = new Walker(randPos.x, randPos.y);
+
+                    //walker = agg.SpawnOutsideBoundingBox(width, height);
                     break;
                 }
             }
         }
 
-        // CONVOLUTION METHOD
+        // CONVOLUTION METHOD SLIGHTLY MODIFIED
         // https://easychair.org/publications/preprint_open/qLmc
 
         float[,] oldHeights = heightmap;
@@ -49,13 +55,13 @@ public static class DLAGenerator
                     // new height of the point is: heightmap(point) + desired height * sum of heightmap(point) * exp(-dist(point, point of aggregate)^k)
                     conv += Mathf.Exp(-Mathf.Pow(Vector2.Distance(tmp, w.pos) / cellSize, 10f));
                 }
-                
+
                 if (i > 0 && j > 0 && i < width && j < height)
                 {
                     heightmap[j, i] = oldHeights[j, i] + 0.1f * Mathf.Clamp(conv, 0, 1);
                 }
             }
-            
+
         }
 
         return heightmap;
