@@ -5,11 +5,10 @@ using UnityEngine;
 public static class DLAGenerator
 {
 
-    public const int maxAge = 250;
-
     #region methods
-    public static float[,] GenerateDLA(float[,] heightmap, int particles, int width, int height, int cellSize)
+    public static float[,] GenerateDLA(float[,] heightmap, int particles, int width, int height, int cellSize, float coralsHeight)
     {
+        int maxAge = width;
         Aggregate agg = new Aggregate(width / 2, height / 2, cellSize);
 
         //DLA generation, fire an individual particle until the aggregate has the desired number of particles
@@ -21,13 +20,13 @@ public static class DLAGenerator
             Walker walker = new Walker(Random.Range(0, width), Random.Range(0, height));
             // randomly move the walker until he's part of the aggregate 
             while (!walker.aggregated)
-            { 
+            {
                 if (walker.CheckAggregated(agg, cellSize, heightmap))
                 {
                     agg.AddCell(walker);
                     break;
                 }
-                walker.RandomWalk(width, height);
+                walker.RandomWalk(width, height, cellSize);
                 // kill walkers that have been moving for too long and spawn another one outside the bounding box of the aggregate
                 if (walker.timeAlive >= maxAge)
                 {
@@ -58,7 +57,7 @@ public static class DLAGenerator
 
                 if (i > 0 && j > 0 && i < width && j < height)
                 {
-                    heightmap[j, i] = oldHeights[j, i] + 0.1f * Mathf.Clamp(conv, 0, 1);
+                    heightmap[j, i] = oldHeights[j, i] + coralsHeight * Mathf.Clamp(conv, 0, 1);
                 }
             }
 
@@ -85,10 +84,10 @@ public class Walker
     }
 
     // apply brownian motion and constrain the movements to our heightmap domain
-    public void RandomWalk(int width, int height)
+    public void RandomWalk(int width, int height, int step)
     {
-        this.pos.x = Mathf.Clamp(this.pos.x + Random.Range(-1f, 1f), 0, width - 1);
-        this.pos.y = Mathf.Clamp(this.pos.y + Random.Range(-1f, 1f), 0, height - 1);
+        this.pos.x = Mathf.Clamp(this.pos.x + Random.Range(-step, step), 0, width - 1);
+        this.pos.y = Mathf.Clamp(this.pos.y + Random.Range(-step, step), 0, height - 1);
         this.timeAlive += 1;
     }
 
@@ -100,7 +99,7 @@ public class Walker
             // uses sqrdist instead of regular dist to avoid sqrt
             if (Utils.sqrDist(this.pos, agg.get(i).pos) <= cellSize * cellSize * 4)
             {
-                if (Random.value <= heightmap[(int)this.pos.x, (int)this.pos.y])
+                if (Random.value <= heightmap[(int)this.pos.x, (int)this.pos.y] && heightmap[(int)this.pos.x, (int)this.pos.y] <= 0.5 )
                 {
                     this.aggregated = true;
                     return true;
