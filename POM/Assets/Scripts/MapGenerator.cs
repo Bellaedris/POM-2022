@@ -50,11 +50,16 @@ public class MapGenerator : MonoBehaviour
     [Tooltip("height a coral should have compared to base terrain")]
     [Range(0, 1)]
     public float coralsHeight = 0.1f;
+    [Tooltip("aspect of the corals")]
+    public AnimationCurve coralsAspect;
+    [Tooltip("Repartition of the corals depending on the depth")]
+    public AnimationCurve depthResistance;
     [Space(10)]
     [Header("Misc")]
     public bool colorMap;
     public bool generateMesh;
     public bool generateDLA;
+    public bool generateReef;
     public bool autoUpdate;
     public bool demo;
     public Renderer renderObject;
@@ -105,9 +110,11 @@ public class MapGenerator : MonoBehaviour
                     }
                 }
         }
-        
+
         if (generateDLA)
-            noisemap = DLAGenerator.GenerateDLA(noisemap, DLACells, width, height, cellSize, coralsHeight);
+            noisemap = DLAGenerator.GenerateDLA(noisemap, DLACells, width, height, cellSize, coralsHeight, coralsAspect);
+        if (generateReef)
+            noisemap = CoralReefGenerator.GenerateCoralReef(noisemap, DLACells, width, height, .1f, depthResistance);
         
         return new MapData(noisemap, colourmap);
     }

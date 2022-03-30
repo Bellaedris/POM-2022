@@ -6,7 +6,7 @@ public static class DLAGenerator
 {
 
     #region methods
-    public static float[,] GenerateDLA(float[,] heightmap, int particles, int width, int height, int cellSize, float coralsHeight)
+    public static float[,] GenerateDLA(float[,] heightmap, int particles, int width, int height, int cellSize, float coralsHeight, AnimationCurve distrib)
     {
         int maxAge = width;
         Aggregate agg = new Aggregate(width / 2, height / 2, cellSize);
@@ -50,9 +50,10 @@ public static class DLAGenerator
                 float conv = 0;
                 foreach (Walker w in agg.aggregate)
                 {
-                    Vector2 tmp = new Vector2(j, i);
+                    float dist = Vector2.Distance(new Vector2(j, i), w.pos);
                     // new height of the point is: heightmap(point) + desired height * sum of heightmap(point) * exp(-dist(point, point of aggregate)^k)
-                    conv += Mathf.Exp(-Mathf.Pow(Vector2.Distance(tmp, w.pos) / cellSize, 10f));
+                    conv += Mathf.Exp(-Mathf.Pow(dist / cellSize, 10f));
+                    //conv += distrib.Evaluate(dist / cellSize);
                 }
 
                 if (i > 0 && j > 0 && i < width && j < height)
