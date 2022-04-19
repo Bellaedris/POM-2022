@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 public static class SandReef2D
 {
@@ -9,6 +10,8 @@ public static class SandReef2D
         int maxAge = width;
         int agg = 0;
 
+        double timer = EditorApplication.timeSinceStartup;
+
         //DLA generation, fire an individual particle until the aggregate has the desired number of particles
         while (agg < particles)
         {
@@ -16,50 +19,39 @@ public static class SandReef2D
             // randomly move the Particle until he's part of the aggregate 
             while (!w.aggregated)
             {
-                w.RandomWalk(width, height, cellSize);
+                w.RandomWalk(width, height, 1);
                 // kill Particles that have been moving for too long or who are not in the ocean anymore (TODO)
                 if (w.timeAlive > maxAge)
                 {
                     w = Walker.SpawnInRange(width, height, heightmap, 0f, .4f);
-                    break;
                 }
-                //if one point of the particle is above the max threshhold, the sand is out of water and stops moving
-                for (int xoff = -cellSize; xoff < cellSize; xoff++)
+
+                int newX, newY;
+                //if one neighbor of the particle is eq or above the max threshhold, the sand is out of water and stops moving
+                for (int xoff = -1; xoff <= 1; xoff++)
                 {
-                    for (int yoff = -cellSize; yoff < cellSize; yoff++)
+                    for (int yoff = -1; yoff <= 1; yoff++)
                     {
-                        int newX = (int)w.pos.x + xoff;
-                        int newY = (int)w.pos.y + yoff;
+                        newX = (int)w.pos.x + xoff;
+                        newY = (int)w.pos.y + yoff;
+                        
                         if (newX >= width || newX < 0 || newY >= width || newY < 0)
                             continue;
-                        if (heightmap[newX, newY] >= .4f &&
-                            Utils.sqrDist(new Vector2(newX, newY), w.pos) <= cellSize * cellSize
-                        )
+                        if (heightmap[newX, newY] >= .4f)
                         {
+                            //the cell is aggregated, rewrite height
+                            heightmap[(int)w.pos.x, (int)w.pos.y] += .01f;
                             w.aggregated = true;
                             agg++;
-                            break;
                         }
-                    }
-                }
-            }
-            //the cell is aggregated, rewrite height
-            for (int xoff = -cellSize; xoff < cellSize; xoff++)
-            {
-                for (int yoff = -cellSize; yoff < cellSize; yoff++)
-                {
-                    int newX = (int)w.pos.x + xoff;
-                    int newY = (int)w.pos.y + yoff;
-                    if (newX >= width || newX < 0 || newY >= width || newY < 0)
-                            continue;
-                    if (Utils.sqrDist(new Vector2(newX, newY), w.pos) <= cellSize * cellSize)
-                    {
-                        heightmap[newX, newY] += heightIncrement;
                     }
                 }
             }
 
         }
+
+        Debug.Log("growth in " + (EditorApplication.timeSinceStartup - timer));
+
         return heightmap;
     }
 

@@ -18,9 +18,11 @@ public class Walker
     public static Walker SpawnInRange(int width, int height, float[,] hm, float minDepth, float maxDepth)
     {
         Walker w;
+        int count = 0;
         do
         {
-            w = new Walker(Random.Range(0, width), Random.Range(minDepth, maxDepth));
+            w = new Walker(Random.Range(0, width), Random.Range(0, height));
+            count++;
         } while (hm[(int)w.pos.x, (int)w.pos.y] >= maxDepth || hm[(int)w.pos.x, (int)w.pos.y] < minDepth);
 
         return w;

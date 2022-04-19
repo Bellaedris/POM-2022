@@ -98,6 +98,12 @@ public class MapGenerator : MonoBehaviour
     private MapData GenerateMap() {
         float[,] noisemap = NoiseGenerator.GenerateNoise(width, height, octaves, persistance, lacunarity, scale, offset, redistribution, seed, 
                                                         islandMode, waterCoefficient, terraces, terracesSteps);
+
+        if (generateDLA)
+            noisemap = DLAGenerator.GenerateDLA(noisemap, DLACells, width, height, cellSize, coralsHeight, coralsAspect);
+        if (generateReef)
+            noisemap = SandReef2D.GenerateSandReef2D(noisemap, DLACells, width, height, cellSize, .1f);
+
         Color[] colourmap = new Color[width * height];
             for(int y = 0; y < noisemap.GetLength(0); y++) {
                 for(int x = 0; x < noisemap.GetLength(1); x++) {
@@ -110,11 +116,6 @@ public class MapGenerator : MonoBehaviour
                     }
                 }
         }
-
-        if (generateDLA)
-            noisemap = DLAGenerator.GenerateDLA(noisemap, DLACells, width, height, cellSize, coralsHeight, coralsAspect);
-        if (generateReef)
-            noisemap = SandReef2D.GenerateSandReef2D(noisemap, DLACells, width, height, cellSize, .1f);
         
         return new MapData(noisemap, colourmap);
     }
