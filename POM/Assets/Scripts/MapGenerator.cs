@@ -114,7 +114,7 @@ public class MapGenerator : MonoBehaviour
         if (generateDLA)
             noisemap = DLAGenerator.GenerateDLA(noisemap, DLACells, width, height, cellSize, coralsHeight, coralsAspect);
         if (generateReef)
-            noisemap = CoralReefGenerator.GenerateCoralReef(noisemap, DLACells, width, height, .1f, depthResistance);
+            noisemap = SandReef2D.GenerateSandReef2D(noisemap, DLACells, width, height, cellSize, .1f);
         
         return new MapData(noisemap, colourmap);
     }

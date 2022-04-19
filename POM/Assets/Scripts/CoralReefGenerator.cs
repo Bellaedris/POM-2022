@@ -29,7 +29,7 @@ public static class CoralReefGenerator
                 }
                 if (particle.pos.y <= heightmap[(int)particle.pos.x, (int)particle.pos.z]) {
                     
-                    heightmap[(int)particle.pos.x, (int)particle.pos.z] += .01f;
+                    heightmap[(int)particle.pos.x, (int)particle.pos.z] += .001f;
                     particle.aggregated = true;
                     agg++;
                 }
@@ -42,8 +42,8 @@ public static class CoralReefGenerator
     public static Particle SpawnInOcean(int width, int height, float[,] hm) {
         Particle p;
         do {
-            p = new Particle(Random.Range(0, width), Random.Range(0f, 1f), Random.Range(0, height));
-        } while(hm[(int)p.pos.x, (int)p.pos.z] >= 0.4);
+            p = new Particle(Random.Range(0, width), Random.Range(.3f, .4f), Random.Range(0, height));
+        } while(hm[(int)p.pos.x, (int)p.pos.z] >= 0.4 || hm[(int)p.pos.x, (int)p.pos.z] < .3f);
 
         return p;
     }
