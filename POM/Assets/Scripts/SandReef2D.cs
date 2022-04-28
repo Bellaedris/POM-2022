@@ -5,7 +5,7 @@ using UnityEditor;
 
 public static class SandReef2D
 {
-    public static float[,] GenerateSandReef2D(float[,] heightmap, int particles, int width, int height, int cellSize, float heightIncrement)
+    public static float[,] GenerateSandReef2D(float[,] heightmap, int particles, int width, int height, int cellSize, float heightIncrement, float shallowWaterLimit)
     {
         int maxAge = width;
         int agg = 0;
@@ -15,7 +15,7 @@ public static class SandReef2D
         //DLA generation, fire an individual particle until the aggregate has the desired number of particles
         while (agg < particles)
         {
-            Walker w = Walker.SpawnInRange(width, height, heightmap, 0f, .4f);
+            Walker w = Walker.SpawnInRange(width, height, heightmap, 0f, shallowWaterLimit);
             // randomly move the Particle until he's part of the aggregate 
             while (!w.aggregated)
             {
@@ -23,7 +23,7 @@ public static class SandReef2D
                 // kill Particles that have been moving for too long or who are not in the ocean anymore (TODO)
                 if (w.timeAlive > maxAge)
                 {
-                    w = Walker.SpawnInRange(width, height, heightmap, 0f, .4f);
+                    w = Walker.SpawnInRange(width, height, heightmap, 0f, shallowWaterLimit);
                 }
 
                 int newX, newY;
@@ -37,10 +37,10 @@ public static class SandReef2D
                         
                         if (newX >= width || newX < 0 || newY >= width || newY < 0)
                             continue;
-                        if (heightmap[newX, newY] >= .4f)
+                        if (heightmap[newX, newY] >= shallowWaterLimit)
                         {
                             //the cell is aggregated, rewrite height
-                            heightmap[(int)w.pos.x, (int)w.pos.y] += .01f;
+                            heightmap[(int)w.pos.x, (int)w.pos.y] += heightIncrement;
                             w.aggregated = true;
                             agg++;
                         }

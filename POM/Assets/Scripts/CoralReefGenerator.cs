@@ -4,32 +4,31 @@ using UnityEngine;
 
 public static class CoralReefGenerator
 {
-
-    public const int MAX_JUMPS = 500;
-
-    public static float[,] GenerateCoralReef(float[,] heightmap, int particles, int width, int height, float heightIncrement, AnimationCurve depthResistance)
+    public static float[,] GenerateCoralReef(float[,] heightmap, int particles, int width, int height, float heightIncrement, AnimationCurve depthResistance, float shallowWaterLimit, float terrainBias, float depthBias)
     {
         int maxAge = width;
         int agg = 0;
 
+        Vector3 center = new Vector3(width / 2, 0, height / 2);
+
         //DLA generation, fire an individual particle until the aggregate has the desired number of particles
         while (agg < particles)
         {
-            Particle particle = SpawnInOcean(width, height, heightmap);
+            Particle particle = Particle.SpawnInRange(width, height, heightmap, 0f, shallowWaterLimit);
             // randomly move the Particle until he's part of the aggregate 
             while (!particle.aggregated)
             {
-                particle.RandomWalk(width, height);
+                //add a bias to the movement, always move toward the center of the isle
+                Vector2 direction = (center - particle.pos).normalized;
+                particle.RandomWalk(width, height, direction, terrainBias, depthBias);
                 // kill Particles that have been moving for too long or who are not in the ocean anymore (TODO)
-                if (particle.Kill(depthResistance))
+                if (particle.Kill(depthResistance, maxAge))
                 {
-                    particle = SpawnInOcean(width, height, heightmap);
-
+                    particle = Particle.SpawnInRange(width, height, heightmap, 0f, shallowWaterLimit);
                     break;
                 }
-                if (particle.pos.y <= heightmap[(int)particle.pos.x, (int)particle.pos.z]) {
-                    
-                    heightmap[(int)particle.pos.x, (int)particle.pos.z] += .001f;
+                if (particle.pos.y <= heightmap[(int)particle.pos.x, (int)particle.pos.z] && heightmap[(int)particle.pos.x, (int)particle.pos.z] <= shallowWaterLimit) {
+                    heightmap[(int)particle.pos.x, (int)particle.pos.z] += heightIncrement;
                     particle.aggregated = true;
                     agg++;
                 }
@@ -37,50 +36,6 @@ public static class CoralReefGenerator
         }
 
         return heightmap;
-    }
-
-    public static Particle SpawnInOcean(int width, int height, float[,] hm) {
-        Particle p;
-        do {
-            p = new Particle(Random.Range(0, width), Random.Range(.3f, .4f), Random.Range(0, height));
-        } while(hm[(int)p.pos.x, (int)p.pos.z] >= 0.4 || hm[(int)p.pos.x, (int)p.pos.z] < .3f);
-
-        return p;
-    }
-
-    // a cell able to walk randomly
-    public class Particle
-    {
-        public Vector3 pos;
-        public bool aggregated;
-        public int timeAlive; //kill particles that drift away
-
-        public Particle(float x, float y, float z, bool agg = false)
-        {
-            this.pos = new Vector3(x, y, z);
-            this.aggregated = agg;
-            this.timeAlive = 0;
-        }
-
-        // apply brownian motion and constrain the movements to our heightmap domain
-        public void RandomWalk(int width, int height)
-        {
-            this.pos.x = Mathf.Clamp(this.pos.x + Random.Range(-1f, 1f), 0, width - 1);
-            this.pos.y = Mathf.Clamp(this.pos.y + Random.Range(-0.001f, 0.001f), 0, 1);
-            this.pos.z = Mathf.Clamp(this.pos.z + Random.Range(-1f, 1f), 0, height - 1);
-            this.timeAlive += 1;
-        }
-
-        // kills the particle if it goes too deep or above surface, or if it was alive for too long
-        public bool Kill(AnimationCurve depthReistance) {
-            if (timeAlive >= MAX_JUMPS)
-                return true;
-            if (Random.value > depthReistance.Evaluate(pos.y)) {
-                return true;
-            }
-            return false;
-        }
-
     }
 
 }

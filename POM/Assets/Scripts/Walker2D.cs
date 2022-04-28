@@ -31,8 +31,8 @@ public class Walker
     // apply brownian motion and constrain the movements to our heightmap domain
     public void RandomWalk(int width, int height, int step)
     {
-        this.pos.x = Mathf.Clamp(this.pos.x + Random.Range(-step, step), 0, width - 1);
-        this.pos.y = Mathf.Clamp(this.pos.y + Random.Range(-step, step), 0, height - 1);
+        this.pos.x = Mathf.Clamp(this.pos.x + Random.Range(-step, step + 1), 0, width - 1);
+        this.pos.y = Mathf.Clamp(this.pos.y + Random.Range(-step, step + 1), 0, height - 1);
         this.timeAlive += 1;
     }
 
