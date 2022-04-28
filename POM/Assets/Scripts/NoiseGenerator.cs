@@ -32,8 +32,14 @@ public static class NoiseGenerator
                 //redistribution to allow creation of flat areas if need be
                 float finalValue = Mathf.Pow(noiseValue, redistribution);
                 //create an island shape by lowering noise value the further you are from the middle of the map
-                if (islandMode) 
-                    finalValue = finalValue - Vector2.Distance(new Vector2(x, y), new Vector2(width / 2, height / 2)) / (width * waterCoefficient);
+                if (islandMode) {
+                    float nx = 2 * x / width - 1;
+                    float ny = 2 * y / height - 1;
+                    float d = 1 - (nx * nx + ny * ny);
+                    finalValue = finalValue * Mathf.Lerp(0, 1, d);
+                }
+                    //finalValue = finalValue - Vector2.Distance(new Vector2(x, y), new Vector2(width / 2, height / 2)) / (width * waterCoefficient);
+                    
                 if (terraces) 
                     finalValue = Mathf.Round(finalValue * terracesStep) / terracesStep;
                 results[(int) x, (int) y] = finalValue;
