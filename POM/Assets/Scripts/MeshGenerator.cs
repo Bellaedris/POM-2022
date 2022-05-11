@@ -5,7 +5,7 @@ using UnityEditor;
 
 public static class MeshGenerator
 {
-    public static MeshData GenerateMesh(float[,] noisemap, float maxHeight, int width, int height, AnimationCurve flattening) {
+    public static MeshData GenerateMesh(float[,] noisemap, float[,] sedmap, float maxHeight, int width, int height, AnimationCurve flattening) {
         int nx = noisemap.GetLength(1);
         int ny = noisemap.GetLength(0);
        
@@ -19,7 +19,7 @@ public static class MeshGenerator
             for (int x = 0; x < nx; x++)
             {
                 lock(flattening) {
-                    meshData.vertices[vertexIndex] = new Vector3((float) x, flattening.Evaluate(noisemap[x, y]) * maxHeight, (float) y);
+                    meshData.vertices[vertexIndex] = new Vector3((float) x, (flattening.Evaluate(noisemap[x, y]) + sedmap[x,y]) * maxHeight, (float) y);
                 }
                 meshData.uvs[vertexIndex] = new Vector2(x / (float) width, y / (float) height);
 

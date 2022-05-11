@@ -6,6 +6,8 @@ public static class CoralReefGenerator
 {
     public static float[,] GenerateCoralReef(float[,] heightmap, int particles, int width, int height, float heightIncrement, AnimationCurve depthResistance, float shallowWaterLimit, float terrainBias, float depthBias)
     {
+        float[,] sedmap = new float[width, height];
+
         int maxAge = width;
         int agg = 0;
 
@@ -28,14 +30,16 @@ public static class CoralReefGenerator
                     break;
                 }
                 if (particle.pos.y <= heightmap[(int)particle.pos.x, (int)particle.pos.z] && heightmap[(int)particle.pos.x, (int)particle.pos.z] <= shallowWaterLimit) {
-                    heightmap[(int)particle.pos.x, (int)particle.pos.z] += heightIncrement;
+                    sedmap[(int)particle.pos.x, (int)particle.pos.z] += heightIncrement;
                     particle.aggregated = true;
                     agg++;
                 }
             }
         }
 
-        return heightmap;
+        //TODO sand pile
+
+        return sedmap;
     }
 
 }

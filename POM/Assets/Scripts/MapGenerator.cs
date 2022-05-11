@@ -84,11 +84,11 @@ public class MapGenerator : MonoBehaviour
             MeshData meshData;
             if (flattenWaterLevel)
             {
-                meshData = MeshGenerator.GenerateMesh(data.noisemap, maxHeight, width, height, flatWaterlevel);
+                meshData = MeshGenerator.GenerateMesh(data.noisemap, data.sedmap, maxHeight, width, height, flatWaterlevel);
                 mesh.sharedMesh = meshData.CreateMesh();
             }
             else
-                meshData = MeshGenerator.GenerateMesh(data.noisemap, maxHeight, width, height, AnimationCurve.Linear(0, 0, 1, 1));
+                meshData = MeshGenerator.GenerateMesh(data.noisemap, data.sedmap, maxHeight, width, height, AnimationCurve.Linear(0, 0, 1, 1));
             mesh.sharedMesh = meshData.CreateMesh();
         }
         else
@@ -112,6 +112,8 @@ public class MapGenerator : MonoBehaviour
     {
         float[,] noisemap = NoiseGenerator.GenerateNoise(width, height, octaves, persistance, lacunarity, scale, offset, redistribution, seed,
                                                         islandMode, waterCoefficient, terraces, terracesSteps);
+        float[,] sedmap = new float[width, height];
+
         float shallowLimit = biomes[1].heightThreshold;
 
         if (generateDLA)
@@ -119,7 +121,7 @@ public class MapGenerator : MonoBehaviour
         if (generateReef2D)
             noisemap = SandReef2D.GenerateSandReef2D(noisemap, DLACells, width, height, cellSize, heightIncrement, shallowLimit);
         if (generateReef3D)
-            noisemap = CoralReefGenerator.GenerateCoralReef(noisemap, DLACells, width, height, heightIncrement, depthResistance, shallowLimit, terrainBias, depthBias);
+            sedmap = CoralReefGenerator.GenerateCoralReef(noisemap, DLACells, width, height, heightIncrement, depthResistance, shallowLimit, terrainBias, depthBias);
 
         Color[] colourmap = new Color[width * height];
         for (int y = 0; y < noisemap.GetLength(0); y++)
@@ -138,7 +140,7 @@ public class MapGenerator : MonoBehaviour
             }
         }
 
-        return new MapData(noisemap, colourmap);
+        return new MapData(noisemap, colourmap, sedmap);
     }
 
     #endregion
@@ -175,12 +177,14 @@ public class MapGenerator : MonoBehaviour
     public struct MapData
     {
         public float[,] noisemap;
+        public float[,] sedmap;
         public Color[] colormap;
 
-        public MapData(float[,] noisemap, Color[] colormap)
+        public MapData(float[,] noisemap, Color[] colormap, float[,] sedmap)
         {
             this.noisemap = noisemap;
             this.colormap = colormap;
+            this.sedmap = sedmap;
         }
     }
 }
