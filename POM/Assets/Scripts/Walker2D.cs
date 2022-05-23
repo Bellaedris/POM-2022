@@ -18,13 +18,10 @@ public class Walker
     public static Walker SpawnInRange(int width, int height, float[,] hm, float minDepth, float maxDepth)
     {
         Walker w;
-        int count = 0;
         do
         {
             w = new Walker(Random.Range(0, width), Random.Range(0, height));
-            count++;
         } while (hm[(int)w.pos.x, (int)w.pos.y] >= maxDepth || hm[(int)w.pos.x, (int)w.pos.y] < minDepth);
-
         return w;
     }
 
@@ -37,14 +34,14 @@ public class Walker
     }
 
     // checks if 2 points are close enough to be aggregated
-    public bool CheckAggregated(Aggregate agg, int cellSize, float[,] heightmap)
+    public bool CheckAggregated(Aggregate agg, int cellSize, float[,] heightmap, float shallowWaterLimit)
     {
         for (int i = 0; i < agg.size(); i++)
         {
             // uses sqrdist instead of regular dist to avoid sqrt
-            if (Utils.sqrDist(this.pos, agg.get(i).pos) <= cellSize * cellSize * 4)
+            if (Utils.sqrDist(pos, agg.get(i).pos) <= cellSize * cellSize * 4)
             {
-                if (Random.value <= heightmap[(int)this.pos.x, (int)this.pos.y] && heightmap[(int)this.pos.x, (int)this.pos.y] <= 0.5)
+                if (Random.value <= heightmap[(int)pos.x, (int)pos.y] && heightmap[(int)pos.x, (int)pos.y] <= shallowWaterLimit)
                 {
                     this.aggregated = true;
                     return true;

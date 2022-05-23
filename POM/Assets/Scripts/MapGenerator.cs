@@ -117,7 +117,7 @@ public class MapGenerator : MonoBehaviour
         float shallowLimit = biomes[1].heightThreshold;
 
         if (generateDLA)
-            noisemap = DLAGenerator.GenerateDLA(noisemap, DLACells, width, height, cellSize, coralsHeight, coralsAspect);
+            noisemap = DLAGenerator.GenerateDLA(noisemap, DLACells, width, height, cellSize, coralsHeight, coralsAspect, shallowLimit);
         if (generateReef2D)
             noisemap = SandReef2D.GenerateSandReef2D(noisemap, DLACells, width, height, cellSize, heightIncrement, shallowLimit);
         if (generateReef3D)
@@ -128,7 +128,7 @@ public class MapGenerator : MonoBehaviour
         {
             for (int x = 0; x < noisemap.GetLength(1); x++)
             {
-                float curHeight = noisemap[x, y];
+                float curHeight = noisemap[x, y] + sedmap[x, y];
                 foreach (MapGenerator.TerrainType biome in biomes)
                 {
                     if (curHeight <= biome.heightThreshold)
