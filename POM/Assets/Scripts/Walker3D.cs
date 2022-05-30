@@ -20,7 +20,7 @@ public class Particle
     public void RandomWalk(int width, int height, Vector2 direction, float terrainBias, float depthBias)
     {
         this.pos.x = Mathf.Clamp(this.pos.x + Random.Range(-1f, 1f) + direction.x * terrainBias, 0, width - 1);
-        this.pos.y = Mathf.Clamp(this.pos.y + Random.Range(0.01f * depthBias, 0.1f * depthBias), 0, 1);
+        this.pos.y = Mathf.Clamp(this.pos.y + Random.Range(-0.2f * depthBias, 0.1f * depthBias), 0, 1);
         this.pos.z = Mathf.Clamp(this.pos.z + Random.Range(-1f, 1f) + direction.y * terrainBias, 0, height - 1);
         this.timeAlive += 1;
     }
@@ -31,11 +31,13 @@ public class Particle
         return (timeAlive >= MAX_JUMPS || Random.value > depthReistance.Evaluate(pos.y));
     }
 
-    public static Particle SpawnInRange(int width, int height, float[,] hm, float minDepth, float maxDepth) {
+    public static Particle SpawnInRange(int width, int height, float[,] hm, float[,] sm, float minDepth, float maxDepth) {
         Particle p;
+        float h;
         do {
-            p = new Particle(Random.Range(0, width), Random.Range(minDepth, maxDepth), Random.Range(0, height));
-        } while(hm[(int)p.pos.x, (int)p.pos.z] >= maxDepth || hm[(int)p.pos.x, (int)p.pos.z] < minDepth);
+            p = new Particle(Random.Range(0, width), maxDepth, Random.Range(0, height));
+            h = hm[(int)p.pos.x, (int)p.pos.z] + sm[(int)p.pos.x, (int)p.pos.z];
+        } while(h >= maxDepth || h < minDepth);
 
         return p;
     }

@@ -65,6 +65,7 @@ public class MapGenerator : MonoBehaviour
     public bool generateDLA;
     public bool generateReef2D;
     public bool generateReef3D;
+    public bool sandCollapse;
     public bool autoUpdate;
     public bool demo;
     public Renderer renderObject;
@@ -121,7 +122,7 @@ public class MapGenerator : MonoBehaviour
         if (generateReef2D)
             noisemap = SandReef2D.GenerateSandReef2D(noisemap, DLACells, width, height, cellSize, heightIncrement, shallowLimit);
         if (generateReef3D)
-            sedmap = CoralReefGenerator.GenerateCoralReef(noisemap, DLACells, width, height, heightIncrement, depthResistance, shallowLimit, terrainBias, depthBias);
+            sedmap = CoralReefGenerator.GenerateCoralReef(noisemap, DLACells, width, height, heightIncrement, depthResistance, shallowLimit, terrainBias, depthBias, sandCollapse);
 
         Color[] colourmap = new Color[width * height];
         for (int y = 0; y < noisemap.GetLength(0); y++)
