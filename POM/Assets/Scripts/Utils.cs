@@ -79,4 +79,10 @@ public static class Utils
         {1, 1, 1, 1, 1},
         {1, 1, 1, 1, 1},
     };
+
+    public static int[,] mean33 = {
+        {1, 1, 1},
+        {1, 1, 1},
+        {1, 1, 1},
+    };
 }
